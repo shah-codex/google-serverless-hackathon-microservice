@@ -8,7 +8,7 @@ let arenaY = undefined;
 let posX = undefined;
 let posY = undefined;
 
-const myService = 'https://foo.com';
+const myService = 'https://nodejs-bot-ycv2zatg2q-as.a.run.app';
 
 function start(req) {
     arenaX = req.arena.dims[0];
