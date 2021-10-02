@@ -9,7 +9,7 @@ app.post('/', function (req, res) {
   console.log(req.body.arena);
   console.log(req.body.arena.state);
   const moves = ['F', 'T', 'L', 'R'];
-  res.send(moves[Math.floor(Math.random() * moves.length)]);
+  res.send(moves[2]);
 });
 
 app.listen(process.env.PORT || 8080);
