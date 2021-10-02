@@ -5,8 +5,10 @@ const bodyParser = require('body-parser');
 let arenaX = undefined;
 let arenaY = undefined;
 
-const myService = 'https://foo.com';
+let posX = undefined;
+let posY = undefined;
 
+const myService = 'https://foo.com';
 
 function start(req) {
     arenaX = req.arena.dims[0];
@@ -14,8 +16,8 @@ function start(req) {
 
     let myMachine = req.arena.state[myService];
     let absPos = getPosition(myMachine.x, myMachine.y);
-    let posX = absPos[0];
-    let posY = absPos[1];
+    posX = absPos[0];
+    posY = absPos[1];
 
     console.log(myMachine);
 
