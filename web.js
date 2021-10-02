@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 let arenaX = undefined;
 let arenaY = undefined;
 
-const myService = 'https://nodejs-bot-ycv2zatg2q-as.a.run.app';
+const myService = 'https://foo.com';
 
 
 function start(req) {
@@ -16,6 +16,8 @@ function start(req) {
     let absPos = getPosition(myMachine.x, myMachine.y);
     let posX = absPos[0];
     let posY = absPos[1];
+
+    console.log(myMachine);
 
     let currentDirection = myMachine.direction;
 
