@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-const myService = 'https://nodejs-bot-mdwpwk4fwa-as.a.run.app';
+const myService = 'https://nodejs-bot-mdwpwk4fwa-as.a.run.app';	// Your External URL for request and respone.
 
 let arenaX = undefined;
 let arenaY = undefined;
@@ -141,7 +141,6 @@ function filterNodes(nodes) {
 	}	
 
 	direction = Object.create(Directions);
-
 
 	direction.E = eastNode;
 	direction.N = northNode;
