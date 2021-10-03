@@ -51,22 +51,6 @@ function getPosition(x, y) {
 	return [y - x + 1, x];
 }
 
-function arrayHasElements(a) {
-	return a.length != 0;
-}
-
-function getAction(count) {
-	switch (count) {
-		case 0:
-			return 'T';
-		case 1:
-			return 'L';
-		case 2:
-			return 'R';
-		default:
-	}
-}
-
 function getNextDirection(direction) {
 	directions = [];
 
@@ -116,9 +100,6 @@ function filterNodes(nodes) {
 	let northNode = [];
 	let southNode = [];
 
-	let checkX = undefined;
-	let checkY = undefined;
-
 	for (singleNode in nodes.state) {
 
 		node = nodes.state[singleNode];
@@ -131,28 +112,30 @@ function filterNodes(nodes) {
 			node.x = dimensions[0];
 			node.y = dimensions[1];
 
-			checkY = node.y - 3;
-			if (checkY <= posY && node.x == posX && inBounds(node.x, checkY)) {
-				eastNode.push(node);
-				continue;
+			if (node.x == posX) {
+				let distance = posY - node.y;
+				if (distance > 0 && distance <= 3) {
+					northNode.push(node);
+					continue;
+				}
+
+				if (distance < 0 && distance >= -3) {
+					southNode.push(node);
+					continue;
+				}
 			}
 
-			checkX = node.x + 3;
-			if (checkX >= posX && node.y == posY && inBounds(checkX, node.y)) {
-				northNode.push(node);
-				continue;
-			}
+			if (node.y == posY) {
+				let distance = posX - node.x;
+				if (distance > 0 && distance <= 3) {
+					westNode.push(node);
+					continue;
+				}
 
-			checkY = node.y + 3;
-			if (checkY >= posY && node.x == posX && inBounds(node.x, checkY)) {
-				westNode.push(node);
-				continue;
-			}
-
-			checkX = node.x - 3;
-			if (checkX <= posX && node.y == posY && inBounds(checkX, node.y)) {
-				southNode.push(node);
-				continue;
+				if (distance < 0 && distance >= -3) {
+					eastNode.push(node);
+					continue;
+				}
 			}
 		}
 	}	
