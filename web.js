@@ -2,96 +2,57 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
+const myService = 'https://nodejs-bot-mdwpwk4fwa-as.a.run.app';
+
 let arenaX = undefined;
 let arenaY = undefined;
 
+let filteredNodes = {};
+let myMachine = undefined;
+let absPos = undefined;
 let posX = undefined;
 let posY = undefined;
 
-const myService = 'https://nodejs-bot-ycv2zatg2q-as.a.run.app';
+let currentDirection = undefined;
+
+const Directions = {
+	'E': [],
+	'N': [],
+	'W': [],
+	'S': []
+};
+
 
 function start(req) {
-    arenaX = req.arena.dims[0];
-    arenaY = req.arena.dims[1];
+	filteredNodes = filterNodes(req.arena);
+	let intDirection = getDirection(currentDirection);
 
-    let myMachine = req.arena.state[myService];
-    let absPos = getPosition(myMachine.x, myMachine.y);
-    posX = absPos[0];
-    posY = absPos[1];
+	console.log(filteredNodes);
 
-    console.log(myMachine);
+	if (filteredNodes[currentDirection.toString()].length != 0) {
+		return 'T';
+	} else {
+		let nextDirections = getNextDirection(intDirection);
 
-    let currentDirection = myMachine.direction;
-
-    for (let nodes in req.arena.state) {
-        if (nodes === myService || nodes.wasHit) {
-            continue;
-        }
-
-        let targetPosition = getPosition(nodes.x, nodes.y);
-        let targetX = targetPosition[0];
-        let targetY = targetPosition[1];
-
-        let changeDirection = undefined;
-        let count = 0;
-        let intDirection = getDirection(currentDirection);
-        let move = moveInDirection(intDirection, targetX, targetY);
-
-        console.log(move);
-        return move;
-    }
+		if (filteredNodes[nextDirections[0].toString()].length != 0) {
+			return 'L';
+		} else if(filteredNodes[nextDirections[1].toString()].length != 0) {
+			return 'R';
+		} else {	
+			if (Math.random() * 10 >= 5) {
+				return 'F';
+			}
+			return 'L';
+		}
+	}
 }
 
 function getPosition(x, y) {
-	return [x, y - x + 1];
+	return [y - x + 1, x];
 }
 
-function moveInDirection(direction, targetX, targetY) {
-	let closingDirection = (direction % 4) - 1;
-	let skippingDirection = (direction + 2) % 4;
-	let checkY = undefined; 
-	let checkX = undefined;
-
-	let count = 0;
-
-	mainLoop:
-	while ((direction % 4) != closingDirection) {
-		if (direction == skippingDirection) {
-			continue;
-		}
-
-		switch (direction) {
-			case 0:
-				checkY = targetY - 3;
-				if (checkY <= posY && targetX == posX && inBounds(targetX, checkY)) {
-					break mainLoop;
-				}
-				break;
-			case 1:
-				checkX = targetX + 3;
-				if (checkX >= posX && targetY == posY && inBounds(checkX, targetY)) {
-					break mainLoop;
-				}
-				break;
-			case 2:
-				checkY = targetY + 3;
-				if (checkY >= posY && targetX == posX && inBounds(targetX, checkY)) {
-					break mainLoop;
-				}
-				break;
-			case 3:
-				checkX = targetX - 3;
-				if (checkX <= posX && targetY == posY && inBounds(checkX, targetY)) {
-					break mainLoop;
-				}
-				break;
-		}
-
-		count = count + 1;
-		direction = direction + 1;
-	}
-
-	return getAction(count);
+function arrayHasElements(a) {
+	return a.length != 0;
 }
 
 function getAction(count) {
@@ -103,11 +64,31 @@ function getAction(count) {
 		case 2:
 			return 'R';
 		default:
-			if (Math.random() * 10 >= 5) {
-				return 'F';
-			}
-			return 'L';
 	}
+}
+
+function getNextDirection(direction) {
+	directions = [];
+
+	directions.push(getDirectionsChar((direction + 1) % 4));
+	directions.push(getDirectionsChar((direction + 3) % 4));
+
+	return directions;
+}
+
+function getDirectionsChar(direction) {
+	switch (direction) {
+		case 0:
+			return 'E';
+		case 1:
+			return 'N';
+		case 2:
+			return 'W';
+		case 3:
+			return 'S';
+	}
+
+	return 'F';
 }
 
 function getDirection(direction) {
@@ -126,14 +107,88 @@ function getDirection(direction) {
 }
 
 function inBounds(x, y) {
-	return ((x >= 1 && x <= arenaX) && (y >= 1 && y <= arenaY))
+	return ((x >= 1 && x <= arenaX) && (y >= 1 && y <= arenaY));
 }
+
+function filterNodes(nodes) {
+	let eastNode = [];
+	let westNode = [];
+	let northNode = [];
+	let southNode = [];
+
+	let checkX = undefined;
+	let checkY = undefined;
+
+	for (singleNode in nodes.state) {
+
+		node = nodes.state[singleNode];
+		if (!(node.wasHit)) {
+			if (singleNode === myService) {
+				continue;
+			}
+			
+			let dimensions = getPosition(node.x, node.y);
+			node.x = dimensions[0];
+			node.y = dimensions[1];
+
+			checkY = node.y - 3;
+			if (checkY <= posY && node.x == posX && inBounds(node.x, checkY)) {
+				eastNode.push(node);
+				continue;
+			}
+
+			checkX = node.x + 3;
+			if (checkX >= posX && node.y == posY && inBounds(checkX, node.y)) {
+				northNode.push(node);
+				continue;
+			}
+
+			checkY = node.y + 3;
+			if (checkY >= posY && node.x == posX && inBounds(node.x, checkY)) {
+				westNode.push(node);
+				continue;
+			}
+
+			checkX = node.x - 3;
+			if (checkX <= posX && node.y == posY && inBounds(checkX, node.y)) {
+				southNode.push(node);
+				continue;
+			}
+		}
+	}	
+
+	direction = Object.create(Directions);
+
+
+	direction.E = eastNode;
+	direction.N = northNode;
+	direction.W = westNode;
+	direction.S = southNode;
+
+	return direction;
+}
+
 
 app.use(bodyParser.json());
 
 app.post('/', function (req, res) {
+	arenaX = req.arena.dims[0];
+	arenaY = req.arena.dims[1];
 
-  res.send(start(req.body));
+	myMachine = req.arena.state[myService];
+	absPos = getPosition(myMachine.x, myMachine.y);
+	posX = absPos[0];
+	posY = absPos[1];
+
+	console.log(posX + " " + posY);
+
+	currentDirection = myMachine.direction.toString();
+
+	arenaX = req.arena.dims[0];
+	arenaY = req.arena.dims[1];
+
+	let ans = start(req);
+	console.log(ans);
 });
 
 app.listen(process.env.PORT || 8080);
