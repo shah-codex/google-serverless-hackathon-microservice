@@ -172,10 +172,10 @@ function filterNodes(nodes) {
 app.use(bodyParser.json());
 
 app.post('/', function (req, res) {
-	arenaX = req.arena.dims[0];
-	arenaY = req.arena.dims[1];
+	arenaX = req.body.arena.dims[0];
+	arenaY = req.body.arena.dims[1];
 
-	myMachine = req.arena.state[myService];
+	myMachine = req.body.arena.state[myService];
 	absPos = getPosition(myMachine.x, myMachine.y);
 	posX = absPos[0];
 	posY = absPos[1];
@@ -184,11 +184,9 @@ app.post('/', function (req, res) {
 
 	currentDirection = myMachine.direction.toString();
 
-	arenaX = req.arena.dims[0];
-	arenaY = req.arena.dims[1];
-
-	let ans = start(req);
+	let ans = start(req.body);
 	console.log(ans);
+	res.send(ans);
 });
 
 app.listen(process.env.PORT || 8080);
