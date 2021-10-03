@@ -39,7 +39,7 @@ function start(req) {
 		} else if(filteredNodes[nextDirections[1].toString()].length != 0) {
 			return 'R';
 		} else {	
-			if (Math.random() * 10 >= 5) {
+			if (Math.random() * 10 >= 2) {
 				return 'F';
 			}
 			return 'L';
